@@ -30,6 +30,7 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
+          repository: mazoea/te-external-tesseract
           ref: v4
           path: tesseract4
           ssh-key: ${{ secrets.TESS_DEPLOY_KEY }}
@@ -38,7 +39,6 @@ jobs:
         run: |
           TAG=${{ env.IMG_REPO }}:latest
           echo "Using TAG:$TAG"
-
           cd tesseract4
           docker pull $TAG || true
           docker build . -f Dockerfile.training --tag $TAG --cache-from $TAG
