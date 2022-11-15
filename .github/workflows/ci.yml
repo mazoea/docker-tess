@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMG_REPO: ghcr.io/mazoea/docker-aws
+  IMG_REPO: ghcr.io/mazoea/docker-tess
   JOBNAME: build-and-test
 
 permissions:
