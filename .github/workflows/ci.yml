@@ -41,7 +41,7 @@ jobs:
           echo "Using TAG:$TAG"
           cd tesseract4
           docker pull $TAG || true
-          CPU_NATIVE=true docker build . -f Dockerfile.training --tag $TAG --cache-from $TAG
+          docker build . -f Dockerfile.training --tag $TAG --cache-from $TAG
 
 
       - name: push image
