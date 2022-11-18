@@ -20,7 +20,7 @@ defaults:
     shell: bash
 
 jobs:
-  build:
+  build-v4:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -37,9 +37,44 @@ jobs:
 
       - name: pull and build
         run: |
-          TAG=${{ env.IMG_REPO }}:latest
+          TAG=${{ env.IMG_REPO }}:v4
           echo "Using TAG:$TAG"
           cd tesseract4
+          docker pull $TAG || true
+          docker build . -f Dockerfile.training --tag $TAG --cache-from $TAG
+
+
+      - name: push image
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ${{ env.IMG_REPO }} --all-tags
+        if: ${{ success() && github.ref_type == 'tag' }}
+
+      - uses: mazoea/ga-maz/end@master
+        with:
+          MS_TEAMS_URI: ${{ secrets.MS_DQ_TEAMS_WEBHOOK_URI }}
+        if: ${{ always() }}
+
+  build-v3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: mazoea/ga-maz/start@master
+        with:
+          MS_TEAMS_URI: ${{ secrets.MS_DQ_TEAMS_WEBHOOK_URI }}
+
+      - uses: actions/checkout@v3
+        with:
+          repository: mazoea/te-external-tesseract
+          ref: master
+          path: tesseract
+          ssh-key: ${{ secrets.TESS_DEPLOY_KEY }}
+
+      - name: pull and build
+        run: |
+          TAG=${{ env.IMG_REPO }}:v3
+          echo "Using TAG:$TAG"
+          cd tesseract
           docker pull $TAG || true
           docker build . -f Dockerfile.training --tag $TAG --cache-from $TAG
 
